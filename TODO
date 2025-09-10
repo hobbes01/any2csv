@@ -1,0 +1,7 @@
+# Some TODOs:
+-[ ] Streamline `*_pb2.py` generation.
+-[ ] Actually use cache to limit file reads.
+-[ ] Generate CSV / XLS based on Query / Grid definitions stored in the archive.
+- Apply `any2csv` principles to generate other formats:
+   -[ ] Markdown with object attributes
+   - Etc.
