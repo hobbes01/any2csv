@@ -1,2 +1,88 @@
 # any2csv
 Generate CSV files from an Anytype export archive.
+
+[Anytype](https://anytype.io/) is the everything app for those
+who celebrate trust & autonomy.
+
+`any2csv` is a work in progress.
+
+## Presentation
+
+`any2csv` produces CSV files from an export archive of an Anytype space.
+Such CSV file can later be imported in Libreoffice, Excel, etc.
+
+You can specify Object types and Fields to include in the CSV file.
+
+This is convenient when you want to perform some analytics on some data stored 
+in your space for example.
+
+### Useful references
+
+* [Anytype](https://anytype.io/) 
+* [Feature request](https://community.anytype.io/t/csv-excel-export/2781/18) in `Anytype` community.
+* [Protocol Buffers and Python](https://protobuf.dev/getting-started/pythontutorial/).
+* [Protocol Buffers and Anytype](https://github.com/anyproto/any-block).
+
+## Installation
+
+### Linux / `pip`
+1. Checkout the project.
+2. Create a virtual env and activate it
+   ``` bash
+   $ python -m venv .
+   $ source venv/bin/activate
+   ```
+3. Install python dependencies.
+   ``` bash
+   pip install ./requirements.txt
+   ```
+4. Update *.proto definitions for your version of `Anytype`.
+See [repo](https://github.com/anyproto/any-block):
+   * changes
+   * events
+   * models
+   * snapshot
+5. Generate `*_pb2.py` files with: 
+   ```
+   protoc *.proto
+   ```
+
+## Usage
+
+`any2csv` takes the path of a zip export file in input, for example
+`custom/path/any.export.zip`.
+
+`any2csv` will:
+* Extract the file to directory `custom/path/any.export`.
+* Leave the extract in place after exit.
+* Generate CSV files to `custom/path/any.export/csv`.
+* Generate human readable files from protobuf binary data files in
+`custom/path/any.export/data` with the `-d` flag.
+
+`any2csv` can generate:
+* A CSV containing all objects found in the archives with their
+available fields.
+* A CSV containing only specified object types and specified fields with:
+   * `-t TYPES`, such as: `-t "Project,Page"`
+   * `-f FIELDS`, such as: `-f "Name,Object type,Tag"`
+
+### Linux / `pip`
+`any2csv` provides the following options:
+
+``` bash
+ $ python any2csv.py -h 
+usage: any2csv.py [-h] [-d] [-t TYPES] [-f FIELDS] filepath
+
+Prototype Any Protobuf to CSV
+
+positional arguments:
+  filepath              path of export file to be converted to CSV
+
+options:
+  -h, --help            show this help message and exit
+  -d, --debug           turn debug on
+  -t TYPES, --types TYPES
+                        dump specific types to CSV.
+  -f FIELDS, --fields FIELDS
+                        dump specific fields to CSV.
+```
