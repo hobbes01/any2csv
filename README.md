@@ -34,7 +34,7 @@ in your space for example.
    ```
 3. Install python dependencies.
    ``` bash
-   pip install ./requirements.txt
+   pip install -r ./requirements.txt
    ```
 4. Update *.proto definitions for your version of `Anytype`.
 See [repo](https://github.com/anyproto/any-block):
