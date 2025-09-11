@@ -35,7 +35,6 @@ if debug:
 
 # Extract archive and prepare workspace
 pbfile = args.filepath
-dump_all = True if args.types is None else False 
 dump_types = args.types.split(',') if args.types is not None else None
 dump_fields = args.fields.split(',') if args.fields is not None else None
 
@@ -265,15 +264,18 @@ for obj in [ 'types', 'relations', 'objects' ]:
 # types = [ 'Activity' ]
 # fields = [ 'name', 'tag', 'Duration', 'Cost' ]
 # Work on objects
-if dump_types is not None:
-    proto_to_csv(messages, csvdir+'output-'+domain+'-types.csv', dump_types, dump_fields)
+messages = []
+domain = 'objects'
+objdir = pbdir + "/" + domain + "/" 
+messages = dump_data(objdir)
+outtime = datetime.now().strftime("%Y%m%d-%H%M%S")
+outfile = csvdir+'/output-'+domain+'-'+outtime+'.csv'
 
-if dump_all:
-    proto_to_csv(messages, csvdir+'output-'+domain+'-all.csv', None, None)
+proto_to_csv(messages, outfile, dump_types, dump_fields)
 
 if debug:
     # Dump readabme protobuf files
-    for domain in [ 'types', 'relations', 'objects']:
+    for domain in [ 'types', 'relations']:
        messages = []
        objdir = pbdir + "/" + domain + "/"
        messages = dump_data(objdir)
