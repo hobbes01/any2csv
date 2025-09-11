@@ -44,7 +44,7 @@ See [repo](https://github.com/anyproto/any-block):
    * snapshot
 5. Generate `*_pb2.py` files with: 
    ```
-   protoc *.proto
+   protoc *.proto --python_out=`pwd`
    ```
 
 ## Usage
