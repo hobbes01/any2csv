@@ -29,12 +29,12 @@ in your space for example.
 1. Checkout the project.
 2. Create a virtual env and activate it
    ``` bash
-   $ python -m venv .
+   $ python -m venv venv
    $ source venv/bin/activate
    ```
 3. Install python dependencies.
    ``` bash
-   pip install ./requirements.txt
+   pip install -r ./requirements.txt
    ```
 4. Update *.proto definitions for your version of `Anytype`.
 See [repo](https://github.com/anyproto/any-block):
@@ -44,7 +44,7 @@ See [repo](https://github.com/anyproto/any-block):
    * snapshot
 5. Generate `*_pb2.py` files with: 
    ```
-   protoc *.proto
+   protoc *.proto --python_out=`pwd`
    ```
 
 ## Usage
