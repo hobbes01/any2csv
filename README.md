@@ -29,7 +29,7 @@ in your space for example.
 1. Checkout the project.
 2. Create a virtual env and activate it
    ``` bash
-   $ python -m venv .
+   $ python -m venv venv
    $ source venv/bin/activate
    ```
 3. Install python dependencies.
