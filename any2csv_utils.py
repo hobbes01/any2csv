@@ -11,6 +11,17 @@ from snapshot_pb2 import SnapshotWithType
 from models_pb2 import RelationFormat
 
 def extract_archive(pbfile, pbdir, debug=False):
+    """
+    Extracts the provided zip archive containing protobuf export files to a target directory.
+
+    Args:
+        pbfile (str): Path to the zip file to extract.
+        pbdir (str): Directory where the archive should be extracted.
+        debug (bool, optional): If True, prints archive contents. Defaults to False.
+
+    Raises:
+        ValueError: If the provided file is not a zip file.
+    """
     if not zipfile.is_zipfile(pbfile):
         raise ValueError("No Zip file provided?")
     with zipfile.ZipFile(pbfile, mode="r") as archive:
@@ -19,6 +30,15 @@ def extract_archive(pbfile, pbdir, debug=False):
         archive.extractall(pbdir)
 
 def ensure_directories(pbdir):
+    """
+    Ensures the output and data directories exist inside the given workspace directory.
+
+    Args:
+        pbdir (str): Path to the workspace directory.
+
+    Returns:
+        tuple[str, str]: Paths to the csv and data directories.
+    """
     csvdir = os.path.join(pbdir, 'csv')
     datadir = os.path.join(pbdir, 'data')
     os.makedirs(csvdir, exist_ok=True)
@@ -26,6 +46,15 @@ def ensure_directories(pbdir):
     return csvdir, datadir
 
 def load_single_message_from_file(filepath):
+    """
+    Loads a protobuf message from a binary file.
+
+    Args:
+        filepath (str): Path to the protobuf file.
+
+    Returns:
+        SnapshotWithType | None: The parsed message, or None if reading/parsing failed.
+    """
     message = SnapshotWithType()
     try:
         with open(filepath, "rb") as f:
@@ -38,6 +67,18 @@ def load_single_message_from_file(filepath):
         return None
 
 def read_rel_option(option, pbdir, unknown_options, load_single_message_from_file):
+    """
+    Resolves a relation option to its human-readable name by searching in several directories.
+
+    Args:
+        option (str): The key of the relation option.
+        pbdir (str): Path to the workspace directory.
+        unknown_options (dict): Dict to track unknown options.
+        load_single_message_from_file (Callable): Function to load message from file.
+
+    Returns:
+        str: The resolved option name, or an empty string if not found.
+    """
     if option == "":
         return ""
     msg = None
@@ -57,6 +98,20 @@ def read_rel_option(option, pbdir, unknown_options, load_single_message_from_fil
     return msg.snapshot.data.details.fields['name'].string_value
 
 def read_data(proto_data, field, pbdir, unknown_types, unknown_options, my_cache):
+    """
+    Reads and interprets the value of a specific field from a protobuf data object.
+
+    Args:
+        proto_data: The protobuf data object.
+        field (str): The protobuf field name.
+        pbdir (str): Path to the workspace directory.
+        unknown_types (dict): Dict to track unknown field types.
+        unknown_options (dict): Dict to track unknown options.
+        my_cache (dict): Cache of relation/type mappings.
+
+    Returns:
+        Any: The interpreted value of the field, type depends on the relation format.
+    """
     found = False
     fld = proto_data.snapshot.data.details.fields[field]
     fld_format = None
@@ -115,6 +170,19 @@ def read_data(proto_data, field, pbdir, unknown_types, unknown_options, my_cache
             return ""
 
 def proto_to_csv(proto_data_list, csv_file_path, types_to_extract, fields_to_extract, my_cache, pbdir, unknown_types, unknown_options):
+    """
+    Converts a list of protobuf data objects to a CSV file.
+
+    Args:
+        proto_data_list (list): List of loaded protobuf data messages.
+        csv_file_path (str): Path to output CSV file.
+        types_to_extract (list | None): List of types to extract, or None for all.
+        fields_to_extract (list | None): List of fields to extract, or None for all.
+        my_cache (dict): Cache of relation/type mappings.
+        pbdir (str): Path to workspace directory.
+        unknown_types (dict): Dict to track unknown field types.
+        unknown_options (dict): Dict to track unknown options.
+    """
     delimiter = '|'
     df = pd.DataFrame()
     if 'Object type' in my_cache['relations'].keys():
@@ -141,6 +209,19 @@ def proto_to_csv(proto_data_list, csv_file_path, types_to_extract, fields_to_ext
     df.to_csv(csv_file_path, sep=delimiter)
 
 def dump_data(objdir, regex, datadir, debug, load_single_message_from_file):
+    """
+    Loads all protobuf messages from a directory matching a filename regex.
+
+    Args:
+        objdir (str): Directory to scan for protobuf files.
+        regex (re.Pattern): Compiled regex pattern for file matching.
+        datadir (str): Directory for debug output (optional).
+        debug (bool): If True, writes debug info to files.
+        load_single_message_from_file (Callable): Function to load message from file.
+
+    Returns:
+        list: List of loaded protobuf messages.
+    """
     m = []
     for root, dirs, files in os.walk(objdir):
         for file in files:
@@ -153,6 +234,17 @@ def dump_data(objdir, regex, datadir, debug, load_single_message_from_file):
     return m
 
 def build_cache(pbdir, regex, load_single_message_from_file):
+    """
+    Builds a cache of mappings for types, relations, and objects in the workspace.
+
+    Args:
+        pbdir (str): Path to the workspace directory.
+        regex (re.Pattern): Compiled regex pattern for file matching.
+        load_single_message_from_file (Callable): Function to load message from file.
+
+    Returns:
+        dict: Cache dictionary containing mappings for 'types', 'relations', 'objects', and 'revrel'.
+    """
     my_cache = {}
     for obj in ['types', 'relations', 'objects']:
         dict1 = {}

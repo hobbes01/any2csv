@@ -12,6 +12,11 @@ from any2csv_utils import (
 )
 
 def main():
+    """
+    Entry point for the any2csv tool.
+    Parses command-line arguments, extracts the archive, prepares directories, loads messages,
+    and converts protobuf data to CSV based on user options.
+    """
     parser = argparse.ArgumentParser(
         prog="any2csv.py",
         description="Prototype Any Protobuf to CSV"
