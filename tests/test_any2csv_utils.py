@@ -1,6 +1,9 @@
 import os
 import tempfile
 import pytest
+import re
+from datetime import datetime
+from distutils import dir_util
 from unittest.mock import MagicMock
 
 import any2csv_utils
@@ -16,6 +19,21 @@ class MockSnapshotWithType:
     
     def ParseFromString(self, s):
         return MockSnapshotWithType()
+
+@pytest.fixture
+def data_dir(tmp_path, request):
+    '''
+    Fixture responsible for searching a folder with the same name of test
+    module and, if available, moving all contents to a temporary directory so
+    tests can use them freely.
+    '''
+    filename = request.module.__file__
+    test_dir, _ = os.path.splitext(filename)
+
+    if os.path.isdir(test_dir):
+        dir_util.copy_tree(test_dir, str(tmp_path))
+
+    return tmp_path
 
 @pytest.fixture
 def pbdir(tmp_path):
@@ -87,3 +105,26 @@ def test_build_cache_empty(tmp_path, monkeypatch):
     monkeypatch.setattr(any2csv_utils, "load_single_message_from_file", lambda x: None)
     cache = any2csv_utils.build_cache(str(pbdir), regex, any2csv_utils.load_single_message_from_file)
     assert set(cache.keys()) == {"types", "relations", "objects", "revrel"}
+
+#import shutil
+import filecmp
+def test_generate_csv(tmp_path, data_dir):
+    fname = "Anytype.ProjectManagement.zip"
+    cname = "any2csv-output.csv"
+    csv_ref = tmp_path / cname
+    pbfile = tmp_path / fname
+    dump_types = None
+    dump_fields = None
+
+    workdir = os.path.dirname(pbfile)
+    basename = os.path.splitext(os.path.basename(pbfile))[0]
+    pbdir = os.path.join(workdir, basename)
+
+    try:
+        any2csv_utils.extract_archive(pbfile, pbdir, False)
+    except Exception as err:
+        print(err)
+        exit(1)
+
+    csv_out = any2csv_utils.build_csv(pbdir, dump_types, dump_fields, debug=False)
+    assert filecmp.cmp(csv_out, csv_ref, False)

@@ -206,6 +206,7 @@ def proto_to_csv(proto_data_list, csv_file_path, types_to_extract, fields_to_ext
             row[key] = read_data(proto_data, i, pbdir, unknown_types, unknown_options, my_cache)
         rowdf = pd.DataFrame.from_dict([row])
         df = pd.concat([df, rowdf], sort=True)
+    #df.sort_values('Creation date', inplace=True)
     df.to_csv(csv_file_path, sep=delimiter)
 
 def dump_data(objdir, regex, datadir, debug, load_single_message_from_file):
@@ -251,15 +252,23 @@ def build_cache(pbdir, regex, load_single_message_from_file):
         dict2 = {}
         objdir = os.path.join(pbdir, obj)
         for root, dirs, files in os.walk(objdir):
-            for file in files:
+            dirs.sort()
+            for file in sorted(files):
                 if regex.match(file):
                     msg = load_single_message_from_file(os.path.join(objdir, file))
                     match obj:
                         case 'types' | 'objects':
                             dict1[file[0:-3]] = msg.snapshot.data.details.fields['name'].string_value
                         case 'relations':
-                            dict1[msg.snapshot.data.details.fields['name'].string_value] = msg.snapshot.data.key
-                            dict2[msg.snapshot.data.key] = msg.snapshot.data.details.fields['name'].string_value
+                            # Strangely enough, relations with the same name can exist...
+                            i=1
+                            name0 = msg.snapshot.data.details.fields['name'].string_value
+                            name = name0
+                            while name in dict1:
+                                name = name0 + str(i)
+                                i+=1
+                            dict1[name] = msg.snapshot.data.key
+                            dict2[msg.snapshot.data.key] = name
         match obj:
             case 'types' | 'objects':
                 my_cache[obj] = dict1
@@ -267,3 +276,45 @@ def build_cache(pbdir, regex, load_single_message_from_file):
                 my_cache[obj] = dict1
                 my_cache['revrel'] = dict2
     return my_cache
+
+def build_csv(pbdir, dump_types, dump_fields, debug):
+    unknown_options = {}
+    unknown_types = {}
+
+    csvdir, datadir = ensure_directories(pbdir)
+
+    regex = re.compile(r'(.*pb$)')
+
+    my_cache = build_cache(pbdir, regex, load_single_message_from_file)
+
+    # Gather proto messages to export
+    objdir = os.path.join(pbdir, 'objects')
+    messages = []
+    for root, dirs, files in os.walk(objdir):
+        dirs.sort()
+        for file in sorted(files):
+            if regex.match(file):
+                msg = load_single_message_from_file(os.path.join(objdir, file))
+                if msg is not None:
+                    messages.append(msg)
+
+    outtime = datetime.now().strftime("%Y%m%d-%H%M%S")
+    outcsv = os.path.join(csvdir, f'any2csv-output-{outtime}.csv')
+    proto_to_csv(messages, outcsv,
+                 dump_types, dump_fields, my_cache, pbdir, unknown_types, unknown_options)
+
+    if debug:
+        for domain in ['types', 'relations', 'objects']:
+            messages = []
+            objdir = os.path.join(pbdir, domain)
+            messages = dump_data(objdir, regex, datadir, debug, load_single_message_from_file)
+
+        print("Unknown types:")
+        for ut in unknown_types.keys():
+            print(ut, unknown_types[ut])
+
+        print("Unknown options:")
+        for uo in unknown_options.keys():
+            print(uo, unknown_options[uo])
+
+    return outcsv
