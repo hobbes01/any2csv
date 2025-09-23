@@ -89,7 +89,7 @@ def test_read_rel_option_handles_missing(monkeypatch, tmp_path):
 
     # Patch load_single_message_from_file to always return None
     monkeypatch.setattr(any2csv_utils, "load_single_message_from_file", lambda x: None)
-    result = any2csv_utils.read_rel_option("missing", str(pbdir), unknown_options, any2csv_utils.load_single_message_from_file)
+    result = any2csv_utils.read_rel_option("missing", str(pbdir), unknown_options)
     assert result == ""
     assert unknown_options["missing"] == 1
 
@@ -103,7 +103,7 @@ def test_build_cache_empty(tmp_path, monkeypatch):
     regex = MagicMock()
     regex.match.return_value = False
     monkeypatch.setattr(any2csv_utils, "load_single_message_from_file", lambda x: None)
-    cache = any2csv_utils.build_cache(str(pbdir), regex, any2csv_utils.load_single_message_from_file)
+    cache = any2csv_utils.build_cache(str(pbdir), regex)
     assert set(cache.keys()) == {"types", "relations", "objects", "revrel"}
 
 #import shutil

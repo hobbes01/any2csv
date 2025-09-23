@@ -66,7 +66,7 @@ def load_single_message_from_file(filepath):
         print(f"Error parsing protobuf message: {e}")
         return None
 
-def read_rel_option(option, pbdir, unknown_options, load_single_message_from_file):
+def read_rel_option(option, pbdir, unknown_options):
     """
     Resolves a relation option to its human-readable name by searching in several directories.
 
@@ -134,20 +134,20 @@ def read_data(proto_data, field, pbdir, unknown_types, unknown_options, my_cache
             ret = ""
             for i in fld.list_value.values:
                 if ret != "":
-                    ret += ', ' + read_rel_option(i.string_value, pbdir, unknown_options, load_single_message_from_file)
+                    ret += ', ' + read_rel_option(i.string_value, pbdir, unknown_options)
                 else:
-                    ret = read_rel_option(i.string_value, pbdir, unknown_options, load_single_message_from_file)
+                    ret = read_rel_option(i.string_value, pbdir, unknown_options)
             return ret
         case RelationFormat.object:
             ret = ""
             if fld.list_value.values:
                 for i in fld.list_value.values:
                     if ret != "":
-                        ret += ', ' + read_rel_option(i.string_value, pbdir, unknown_options, load_single_message_from_file)
+                        ret += ', ' + read_rel_option(i.string_value, pbdir, unknown_options)
                     else:
-                        ret = read_rel_option(i.string_value, pbdir, unknown_options, load_single_message_from_file)
+                        ret = read_rel_option(i.string_value, pbdir, unknown_options)
             else:
-                ret = read_rel_option(fld.string_value, pbdir, unknown_options, load_single_message_from_file)
+                ret = read_rel_option(fld.string_value, pbdir, unknown_options)
             return ret
         case RelationFormat.date:
             return datetime.fromtimestamp(fld.number_value)
@@ -209,7 +209,7 @@ def proto_to_csv(proto_data_list, csv_file_path, types_to_extract, fields_to_ext
     #df.sort_values('Creation date', inplace=True)
     df.to_csv(csv_file_path, sep=delimiter)
 
-def dump_data(objdir, regex, datadir, debug, load_single_message_from_file):
+def dump_data(objdir, regex, datadir, debug):
     """
     Loads all protobuf messages from a directory matching a filename regex.
 
@@ -234,7 +234,7 @@ def dump_data(objdir, regex, datadir, debug, load_single_message_from_file):
                 m.append(msg)
     return m
 
-def build_cache(pbdir, regex, load_single_message_from_file):
+def build_cache(pbdir, regex):
     """
     Builds a cache of mappings for types, relations, and objects in the workspace.
 
@@ -285,7 +285,7 @@ def build_csv(pbdir, dump_types, dump_fields, debug):
 
     regex = re.compile(r'(.*pb$)')
 
-    my_cache = build_cache(pbdir, regex, load_single_message_from_file)
+    my_cache = build_cache(pbdir, regex)
 
     # Gather proto messages to export
     objdir = os.path.join(pbdir, 'objects')
@@ -307,7 +307,7 @@ def build_csv(pbdir, dump_types, dump_fields, debug):
         for domain in ['types', 'relations', 'objects']:
             messages = []
             objdir = os.path.join(pbdir, domain)
-            messages = dump_data(objdir, regex, datadir, debug, load_single_message_from_file)
+            messages = dump_data(objdir, regex, datadir, debug)
 
         print("Unknown types:")
         for ut in unknown_types.keys():
