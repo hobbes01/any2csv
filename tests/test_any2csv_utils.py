@@ -6,6 +6,7 @@ from datetime import datetime
 from distutils import dir_util
 from unittest.mock import MagicMock
 import filecmp
+import difflib
 
 import any2csv_utils
 
@@ -129,4 +130,16 @@ def test_generate_csv(tmp_path, data_dir):
         exit(1)
 
     csv_out = any2csv_utils.build_csv(pbdir, dump_types, dump_fields, debug=False)
+    print("START - Diff files")
+    with open(csv_ref, 'r') as fref:
+        with open(csv_out, 'r') as fcsv:
+            diff = difflib.unified_diff(
+                fref.readlines(),
+                fcsv.readlines(),
+                fromfile=str(csv_ref),
+                tofile=str(csv_out),
+            )
+            for line in diff:
+                sys.stdout.write(line)
+    print("END - Diff files")
     assert filecmp.cmp(csv_out, csv_ref, False)
