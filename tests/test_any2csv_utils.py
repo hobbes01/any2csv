@@ -115,8 +115,8 @@ def test_generate_csv(tmp_path, data_dir):
     dump_types = None
     dump_fields = None
 
-    assert os.path.isfile(fname)
-    assert os.path.isfile(cname)
+    assert os.path.isfile(csv_ref)
+    assert os.path.isfile(pbfile)
 
     workdir = os.path.dirname(pbfile)
     basename = os.path.splitext(os.path.basename(pbfile))[0]
