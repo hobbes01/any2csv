@@ -299,7 +299,7 @@ def build_csv(pbdir, dump_types, dump_fields, debug):
                     messages.append(msg)
 
     outtime = datetime.now().strftime("%Y%m%d-%H%M%S")
-    outcsv = os.path.join(csvdir, f'any2csv-output-{outtime}.csv')
+    outcsv = os.path.join(csvdir, f'anytype2csv-output-{outtime}.csv')
     proto_to_csv(messages, outcsv,
                  dump_types, dump_fields, my_cache, pbdir, unknown_types, unknown_options)
 

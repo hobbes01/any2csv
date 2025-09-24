@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 import filecmp
 import difflib
 
-import any2csv_utils
+import anytype2csv_utils
 
 class MockSnapshotWithType:
     """
@@ -58,7 +58,7 @@ def test_extract_archive(tmp_path):
         zf.write(archive_dir / "test.txt", arcname="test.txt")
 
     extract_dir = tmp_path / "extract"
-    any2csv_utils.extract_archive(str(zip_path), str(extract_dir))
+    anytype2csv_utils.extract_archive(str(zip_path), str(extract_dir))
     assert (extract_dir / "test.txt").exists()
 
 def test_ensure_directories(tmp_path):
@@ -67,7 +67,7 @@ def test_ensure_directories(tmp_path):
     """
     pbdir = tmp_path / "myproto"
     pbdir.mkdir()
-    csvdir, datadir = any2csv_utils.ensure_directories(str(pbdir))
+    csvdir, datadir = anytype2csv_utils.ensure_directories(str(pbdir))
     assert os.path.isdir(csvdir)
     assert os.path.isdir(datadir)
 
@@ -78,8 +78,8 @@ def test_load_single_message_from_file(monkeypatch, tmp_path):
     test_file = tmp_path / "file.pb"
     test_file.write_bytes(b"fake content")
 
-    monkeypatch.setattr(any2csv_utils, "SnapshotWithType", MockSnapshotWithType)
-    result = any2csv_utils.load_single_message_from_file(str(test_file))
+    monkeypatch.setattr(anytype2csv_utils, "SnapshotWithType", MockSnapshotWithType)
+    result = anytype2csv_utils.load_single_message_from_file(str(test_file))
     assert isinstance(result, MockSnapshotWithType)
 
 def test_read_rel_option_handles_missing(monkeypatch, tmp_path):
@@ -91,8 +91,8 @@ def test_read_rel_option_handles_missing(monkeypatch, tmp_path):
     unknown_options = {}
 
     # Patch load_single_message_from_file to always return None
-    monkeypatch.setattr(any2csv_utils, "load_single_message_from_file", lambda x: None)
-    result = any2csv_utils.read_rel_option("missing", str(pbdir), unknown_options)
+    monkeypatch.setattr(anytype2csv_utils, "load_single_message_from_file", lambda x: None)
+    result = anytype2csv_utils.read_rel_option("missing", str(pbdir), unknown_options)
     assert result == ""
     assert unknown_options["missing"] == 1
 
@@ -105,8 +105,8 @@ def test_build_cache_empty(tmp_path, monkeypatch):
         (pbdir / sub).mkdir(parents=True, exist_ok=True)
     regex = MagicMock()
     regex.match.return_value = False
-    monkeypatch.setattr(any2csv_utils, "load_single_message_from_file", lambda x: None)
-    cache = any2csv_utils.build_cache(str(pbdir), regex)
+    monkeypatch.setattr(anytype2csv_utils, "load_single_message_from_file", lambda x: None)
+    cache = anytype2csv_utils.build_cache(str(pbdir), regex)
     assert set(cache.keys()) == {"types", "relations", "objects", "revrel"}
 
 def test_generate_csv(tmp_path, data_dir):
@@ -114,7 +114,7 @@ def test_generate_csv(tmp_path, data_dir):
     time.tzset()
 
     fname = "Anytype.ProjectManagement.zip"
-    cname = "any2csv-output.csv"
+    cname = "anytype2csv-output.csv"
     csv_ref = tmp_path / cname
     pbfile = tmp_path / fname
     dump_types = None
@@ -128,12 +128,12 @@ def test_generate_csv(tmp_path, data_dir):
     pbdir = os.path.join(workdir, basename)
 
     try:
-        any2csv_utils.extract_archive(pbfile, pbdir, False)
+        anytype2csv_utils.extract_archive(pbfile, pbdir, False)
     except Exception as err:
         print(err)
         exit(1)
 
-    csv_out = any2csv_utils.build_csv(pbdir, dump_types, dump_fields, debug=False)
+    csv_out = anytype2csv_utils.build_csv(pbdir, dump_types, dump_fields, debug=False)
     print("START - Diff files")
     with open(csv_ref, 'r') as fref:
         with open(csv_out, 'r') as fcsv:
