@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from distutils import dir_util
 from unittest.mock import MagicMock
+import filecmp
 
 import any2csv_utils
 
@@ -106,8 +107,6 @@ def test_build_cache_empty(tmp_path, monkeypatch):
     cache = any2csv_utils.build_cache(str(pbdir), regex)
     assert set(cache.keys()) == {"types", "relations", "objects", "revrel"}
 
-#import shutil
-import filecmp
 def test_generate_csv(tmp_path, data_dir):
     fname = "Anytype.ProjectManagement.zip"
     cname = "any2csv-output.csv"
@@ -115,6 +114,9 @@ def test_generate_csv(tmp_path, data_dir):
     pbfile = tmp_path / fname
     dump_types = None
     dump_fields = None
+
+    assert os.path.isfile(fname)
+    assert os.path.isfile(cname)
 
     workdir = os.path.dirname(pbfile)
     basename = os.path.splitext(os.path.basename(pbfile))[0]
