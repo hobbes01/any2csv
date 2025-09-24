@@ -1,5 +1,7 @@
 import argparse
 import os
+import time
+import datetime
 from any2csv_utils import (
     extract_archive,
     build_csv
@@ -11,6 +13,9 @@ def main():
     Parses command-line arguments, extracts the archive, prepares directories, loads messages,
     and converts protobuf data to CSV based on user options.
     """
+    os.environ['TZ'] = 'Europe/Brussels'
+    time.tzset()
+
     parser = argparse.ArgumentParser(
         prog="any2csv.py",
         description="Prototype Any Protobuf to CSV"

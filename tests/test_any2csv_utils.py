@@ -2,6 +2,7 @@ import os
 import tempfile
 import pytest
 import re
+import time
 from datetime import datetime
 from distutils import dir_util
 from unittest.mock import MagicMock
@@ -109,6 +110,9 @@ def test_build_cache_empty(tmp_path, monkeypatch):
     assert set(cache.keys()) == {"types", "relations", "objects", "revrel"}
 
 def test_generate_csv(tmp_path, data_dir):
+    os.environ['TZ'] = 'Europe/Brussels'
+    time.tzset()
+
     fname = "Anytype.ProjectManagement.zip"
     cname = "any2csv-output.csv"
     csv_ref = tmp_path / cname
