@@ -1,14 +1,14 @@
-# any2csv
+# anytype2csv
 Generate CSV files from an Anytype export archive.
 
 [Anytype](https://anytype.io/) is the everything app for those
 who celebrate trust & autonomy.
 
-`any2csv` is a work in progress.
+`anytype2csv` is a work in progress.
 
 ## Presentation
 
-`any2csv` produces CSV files from an export archive of an Anytype space.
+`anytype2csv` produces CSV files from an export archive of an Anytype space.
 Such CSV file can later be imported in Libreoffice, Excel, etc.
 
 You can specify Object types and Fields to include in the CSV file.
@@ -49,17 +49,17 @@ See [repo](https://github.com/anyproto/any-block):
 
 ## Usage
 
-`any2csv` takes the path of a zip export file in input, for example
+`anytype2csv` takes the path of a zip export file in input, for example
 `custom/path/any.export.zip`.
 
-`any2csv` will:
+`anytype2csv` will:
 * Extract the file to directory `custom/path/any.export`.
 * Leave the extract in place after exit.
 * Generate CSV files to `custom/path/any.export/csv`.
 * Generate human readable files from protobuf binary data files in
 `custom/path/any.export/data` with the `-d` flag.
 
-`any2csv` can generate:
+`anytype2csv` can generate:
 * A CSV containing all objects found in the archives with their
 available fields.
 * A CSV containing only specified object types and specified fields with:
@@ -67,11 +67,11 @@ available fields.
    * `-f FIELDS`, such as: `-f "Name,Object type,Tag"`
 
 ### Linux / `pip`
-`any2csv` provides the following options:
+`anytype2csv` provides the following options:
 
 ``` bash
- $ python any2csv.py -h 
-usage: any2csv.py [-h] [-d] [-t TYPES] [-f FIELDS] filepath
+ $ python anytype2csv.py -h 
+usage: anytype2csv.py [-h] [-d] [-t TYPES] [-f FIELDS] filepath
 
 Prototype Any Protobuf to CSV
 
