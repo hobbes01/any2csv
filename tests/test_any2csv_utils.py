@@ -140,6 +140,6 @@ def test_generate_csv(tmp_path, data_dir):
                 tofile=str(csv_out),
             )
             for line in diff:
-                sys.stdout.write(line)
+                print(line)
     print("END - Diff files")
     assert filecmp.cmp(csv_out, csv_ref, False)
