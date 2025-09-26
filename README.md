@@ -25,7 +25,7 @@ in your space for example.
 
 ## Installation
 
-### Linux / `pip`
+### Linux (Ubuntu, Debian) + Python (`pip`)
 1. Checkout the project.
 2. Create a virtual env and activate it
    ``` bash
@@ -34,7 +34,7 @@ in your space for example.
    ```
 3. Install python dependencies.
    ``` bash
-   pip install -r ./requirements.txt
+   $ pip install -r ./requirements.txt
    ```
 4. Update *.proto definitions for your version of `Anytype`.
 See [repo](https://github.com/anyproto/any-block):
@@ -44,7 +44,11 @@ See [repo](https://github.com/anyproto/any-block):
    * snapshot
 5. Generate `*_pb2.py` files with: 
    ```
-   protoc *.proto --python_out=`pwd`
+   $ protoc *.proto --python_out=`pwd`
+   ```
+   `protoc`can be installed with:
+   ```
+   $ sudo apt-get update && sudo apt-get install protobuf-compiler
    ```
 
 ## Usage
